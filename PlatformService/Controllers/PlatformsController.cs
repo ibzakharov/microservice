@@ -14,14 +14,17 @@ public class PlatformsController : ControllerBase
     private readonly IPlatformRepository _platformRepository;
     private readonly IMapper _mapper;
     private readonly ICommandDataClient _commandDataClient;
+    private readonly IConfiguration _configuration;
 
     public PlatformsController(IPlatformRepository platformRepository, 
         IMapper mapper,
-        ICommandDataClient commandDataClient)
+        ICommandDataClient commandDataClient,
+        IConfiguration configuration)
     {
         _platformRepository = platformRepository;
         _mapper = mapper;
         _commandDataClient = commandDataClient;
+        _configuration = configuration;
     }
 
     [HttpGet]
@@ -60,12 +63,13 @@ public class PlatformsController : ControllerBase
         try
         {
             _commandDataClient.SendPlatformToCommand(platformReadDto);
+            Console.WriteLine($"--> Command has been sent to {_configuration["CommandService"]}");
         }
         catch (Exception e)
         {
             Console.WriteLine($"--> Could not send command: {e.Message}");
         }
-        
+
         return CreatedAtRoute(nameof(GetPlatformById), new { Id = platformReadDto.Id }, platformReadDto);
     }
 }
